@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_id">144481030614</string>
+    <string name="fb_app_id">438320722976293</string>
+    <string name="easy_leader_board">CgkI1qP2nZoEEAIQAQ</string>
+    <string name="medium_leader_board">CgkI1qP2nZoEEAIQAg</string>
+    <string name="hard_leader_board">CgkI1qP2nZoEEAIQAw</string>
+    <string name="game_scene_ads">ca-app-pub-4441234766413659/5719738127</string>
+    <string name="game_scene_full_screen_ads">ca-app-pub-4441234766413659/3117695328</string>
+    
+    <string name="achievement_beginner">CgkI1qP2nZoEEAIQBA</string>
+    <string name="achievement_1_board_clear">CgkI1qP2nZoEEAIQCg</string>
+    <string name="achievement_3_boards_cleared">CgkI1qP2nZoEEAIQCw</string>
+    <string name="achievement_3_boards_in_single_game">CgkI1qP2nZoEEAIQDA</string>
+    <string name="achievement_amateur">CgkI1qP2nZoEEAIQBQ</string>
+    <string name="achievement_5_boards_cleared">CgkI1qP2nZoEEAIQDQ</string>
+    <string name="achievement_5_boards_in_single_game">CgkI1qP2nZoEEAIQDg</string>
+    <string name="achievement_10_boards_cleared">CgkI1qP2nZoEEAIQDw</string>
+    <string name="achievement_novice">CgkI1qP2nZoEEAIQBg</string>
+    <string name="achievement_mathematician">CgkI1qP2nZoEEAIQBw</string>
+    <string name="achievement_30_boards_cleared">CgkI1qP2nZoEEAIQEQ</string>
+    <string name="achievement_10_boards_in_single_game">CgkI1qP2nZoEEAIQEA</string>
+    <string name="achievement_grand_master">CgkI1qP2nZoEEAIQCA</string>
+    <string name="achievement_100_boards_cleared">CgkI1qP2nZoEEAIQEg</string>
+    <string name="leaderboard_easy_leaderboard">CgkI1qP2nZoEEAIQAQ</string>
+    <string name="leaderboard_medium_leaderboard">CgkI1qP2nZoEEAIQAg</string>
+    <string name="leaderboard_hard_leaderboard">CgkI1qP2nZoEEAIQAw</string>
+    
+    <string name="analytics_usage_count_tracker_id">UA-1111-1</string>
+
+</resources>
