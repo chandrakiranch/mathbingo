@@ -71,6 +71,8 @@ public class ScoreSprite extends Sprite {
 			score = 0;
 		}
 
+		RM.gameDataManager.setmScore(this.score);
+		
 		scoreText.setText(String.valueOf(this.score));
 		
 		modifier.reset();

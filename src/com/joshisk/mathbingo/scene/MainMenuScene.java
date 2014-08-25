@@ -13,7 +13,9 @@ import org.andengine.input.touch.TouchEvent;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.net.Uri;
 
 import com.google.android.gms.games.Games;
 import com.joshisk.mathbingo.BaseScene;
@@ -31,53 +33,53 @@ IOnMenuItemClickListener {
 	private static final ResourceManager RM = ResourceManager.getInstance();
 
 	private static final int REQUEST_ACHIEVEMENTS = 10;
-	
+
 	private MenuScene menuChildScene;
 	private final int MENU_PLAY = 0;
 	private final int MENU_OPTIONS = 1;
 	private final int MENU_QUIT = 2;
 	TiledSprite soundSprite;
-	
+
 	private void createBackground()
 	{
-	    setBackground(new SpriteBackground(new Sprite(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2, 
-	    		RM.menu_background_region, vbom)));
-		
-	    attachChild(new Sprite(MainGameActivity.CAMERA_WIDTH/2, 3 * MainGameActivity.CAMERA_HEIGHT/4 + 50, 
-	    		RM.titleTextureRegion, vbom));
+		setBackground(new SpriteBackground(new Sprite(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2, 
+				RM.menu_background_region, vbom)));
+
+		attachChild(new Sprite(MainGameActivity.CAMERA_WIDTH/2, 3 * MainGameActivity.CAMERA_HEIGHT/4 + 50, 
+				RM.titleTextureRegion, vbom));
 	}
-	
+
 	private void createMenuChildSceneOld()
 	{
-	    menuChildScene = new MenuScene(camera);
-	    menuChildScene.setPosition(0, 0);
-	    
-	    final IMenuItem playMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_PLAY, RM.play_region, vbom), 1f, 0.75f);
-	    final IMenuItem optionsMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_OPTIONS, RM.options_region, vbom), 1f, 0.75f);
-	    final IMenuItem quitMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_QUIT, RM.quit_region, vbom), 1f, 0.75f);
-	    
-	    /*playMenuItem.setScale(0.75f);
+		menuChildScene = new MenuScene(camera);
+		menuChildScene.setPosition(0, 0);
+
+		final IMenuItem playMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_PLAY, RM.play_region, vbom), 1f, 0.75f);
+		final IMenuItem optionsMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_OPTIONS, RM.options_region, vbom), 1f, 0.75f);
+		final IMenuItem quitMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_QUIT, RM.quit_region, vbom), 1f, 0.75f);
+
+		/*playMenuItem.setScale(0.75f);
 	    optionsMenuItem.setScale(0.75f);
 	    quitMenuItem.setScale(0.75f);*/
-	    menuChildScene.addMenuItem(playMenuItem);
-	    menuChildScene.addMenuItem(optionsMenuItem);
-	    menuChildScene.addMenuItem(quitMenuItem);
-	    
-	    menuChildScene.buildAnimations();
-	    menuChildScene.setBackgroundEnabled(false);
-	    
-//	    playMenuItem.setPosition(playMenuItem.getX(), playMenuItem.getY());
-//	    optionsMenuItem.setPosition(optionsMenuItem.getX(), optionsMenuItem.getY());
-//	    optionsMenuItem.setPosition(quitMenuItem.getX(), quitMenuItem.getY());
-	    
-	    menuChildScene.setOnMenuItemClickListener(this);
-	    
-	    setChildScene(menuChildScene);
-	    
+		menuChildScene.addMenuItem(playMenuItem);
+		menuChildScene.addMenuItem(optionsMenuItem);
+		menuChildScene.addMenuItem(quitMenuItem);
+
+		menuChildScene.buildAnimations();
+		menuChildScene.setBackgroundEnabled(false);
+
+		//	    playMenuItem.setPosition(playMenuItem.getX(), playMenuItem.getY());
+		//	    optionsMenuItem.setPosition(optionsMenuItem.getX(), optionsMenuItem.getY());
+		//	    optionsMenuItem.setPosition(quitMenuItem.getX(), quitMenuItem.getY());
+
+		menuChildScene.setOnMenuItemClickListener(this);
+
+		setChildScene(menuChildScene);
+
 	}
 
 	private void createMenuChildScene() {
-		Sprite playSprite = new Sprite(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2 + 50, 
+		Sprite playSprite = new Sprite(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2 + 65, 
 				RM.play_region, vbom) {
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 					float pTouchAreaLocalX, float pTouchAreaLocalY) {
@@ -93,7 +95,7 @@ IOnMenuItemClickListener {
 				return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 			}
 		};
-		Sprite optionsSprite = new ButtonSprite(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2 - 50, 
+		Sprite optionsSprite = new ButtonSprite(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2 - 35, 
 				RM.options_region, vbom) {
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 					float pTouchAreaLocalX, float pTouchAreaLocalY) {
@@ -110,7 +112,7 @@ IOnMenuItemClickListener {
 				return true;
 			}
 		};
-		Sprite quitSprite = new Sprite(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2 - 150, 
+		Sprite quitSprite = new Sprite(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2 - 135, 
 				RM.quit_region, vbom) {
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 					float pTouchAreaLocalX, float pTouchAreaLocalY) {
@@ -156,15 +158,15 @@ IOnMenuItemClickListener {
 					this.setScale(0.75f);
 				} else if (pSceneTouchEvent.isActionUp()) {
 					this.setScale(1f);
-					
+
 					RM.gameDataManager.setmSoundRequired(!RM.gameDataManager.ismSoundRequired());
-					
+
 					if(RM.gameDataManager.ismSoundRequired()) {
 						setCurrentTileIndex(1);
 					}  else {
 						setCurrentTileIndex(0);
 					}
-					
+
 					Utilities.playButtonSound();
 				}
 				return true;
@@ -174,7 +176,7 @@ IOnMenuItemClickListener {
 			soundSprite.setCurrentTileIndex(1);
 		else 
 			soundSprite.setCurrentTileIndex(0);
-		
+
 		Sprite leaderBoardSprite = new Sprite(MainGameActivity.CAMERA_WIDTH - 50, MainGameActivity.CAMERA_HEIGHT/2 - 250, 
 				RM.leaderBoardTextureRegion, RM.vbom) {
 			@Override
@@ -191,7 +193,7 @@ IOnMenuItemClickListener {
 							public void run() {
 
 								AlertDialog.Builder alert = new AlertDialog.Builder(RM.activity);
-								alert.setTitle("Not Signed In");
+								alert.setTitle("LeaderBoard");
 								alert.setMessage("Not Signed Into Google\nCheck your internet connection");
 								alert.setPositiveButton("Try again", new OnClickListener() {
 									@Override
@@ -218,7 +220,7 @@ IOnMenuItemClickListener {
 								public void run() {
 
 									AlertDialog.Builder alert = new AlertDialog.Builder(RM.activity);
-									alert.setTitle("No Internet");
+									alert.setTitle("LeaderBoard");
 									alert.setMessage("No Internet connection available");
 									alert.setPositiveButton("OK", new OnClickListener() {
 										@Override
@@ -238,16 +240,17 @@ IOnMenuItemClickListener {
 				return true;
 			}
 		};
-		
+
 		Sprite achivementSprite = new Sprite(MainGameActivity.CAMERA_WIDTH - 150, MainGameActivity.CAMERA_HEIGHT/2 - 250, 
-				RM.leaderBoardTextureRegion, RM.vbom) {
+				//Sprite achivementSprite = new Sprite(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2 - 250, 
+				RM.achivementsTextureRegion, RM.vbom) {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 					float pTouchAreaLocalX, float pTouchAreaLocalY) {
 				if(pSceneTouchEvent.isActionDown()) {
 					this.setScale(0.75f);
 				} else if (pSceneTouchEvent.isActionUp()) {
-					this.setScale(1f);
+					this.setScale(1.1f);
 					Utilities.playButtonSound();
 					if(!RM.activity.isSignIn()) {
 						RM.activity.runOnUiThread(new Runnable() {
@@ -302,22 +305,54 @@ IOnMenuItemClickListener {
 				return true;
 			}
 		};
-		
+
+		Sprite rateUsSprite = new Sprite(150, MainGameActivity.CAMERA_HEIGHT/2 - 250, 
+				RM.rateUsTextureRegion, RM.vbom) {
+			@Override
+			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+					float pTouchAreaLocalX, float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.isActionDown()) {
+					this.setScale(0.75f);
+				} else if (pSceneTouchEvent.isActionUp()) {
+					this.setScale(1.1f);
+					Utilities.playButtonSound();
+
+					rateTheApp();
+				}
+				return true;
+			}
+		};
+
+		achivementSprite.setScale(1.1f);
+
 		attachChild(playSprite);
 		attachChild(optionsSprite);
 		attachChild(quitSprite);
 		attachChild(soundSprite);
 		attachChild(leaderBoardSprite);
 		attachChild(achivementSprite);
-		
+		attachChild(rateUsSprite);
+
 		registerTouchArea(playSprite);
 		registerTouchArea(optionsSprite);
 		registerTouchArea(quitSprite);
 		registerTouchArea(soundSprite);
 		registerTouchArea(leaderBoardSprite);
 		registerTouchArea(achivementSprite);
+		registerTouchArea(rateUsSprite);
 	}
-	
+
+	private void rateTheApp() {
+
+		final Uri uri = Uri.parse("market://details?id=" + RM.activity.getApplicationContext().getPackageName());
+		final Intent rateAppIntent = new Intent(Intent.ACTION_VIEW, uri);
+
+		if (RM.activity.getPackageManager().queryIntentActivities(rateAppIntent, 0).size() > 0)
+		{
+			RM.activity.startActivity(rateAppIntent);
+		} 
+	}
+
 	@Override
 	public void createScene() {
 		createBackground();
@@ -364,22 +399,22 @@ IOnMenuItemClickListener {
 		//menuChildScene.dispose();
 		//dispose();
 	}
-	
+
 	public boolean onMenuItemClicked(MenuScene pMenuScene, IMenuItem pMenuItem, float pMenuItemLocalX, float pMenuItemLocalY)
 	{
-	        switch(pMenuItem.getID())
-	        {
-	        case MENU_PLAY:
-	        	SceneManager.getInstance().createGameScene();
-	            return true;
-	        case MENU_OPTIONS:
-	        	SceneManager.getInstance().createOptionsScene();
-	            return true;
-	        case MENU_QUIT:
-	            System.exit(0);
-	        default:
-	            return false;
-	    }
+		switch(pMenuItem.getID())
+		{
+		case MENU_PLAY:
+			SceneManager.getInstance().createGameScene();
+			return true;
+		case MENU_OPTIONS:
+			SceneManager.getInstance().createOptionsScene();
+			return true;
+		case MENU_QUIT:
+			System.exit(0);
+		default:
+			return false;
+		}
 	}
 
 	@Override
@@ -389,11 +424,11 @@ IOnMenuItemClickListener {
 		else 
 			soundSprite.setCurrentTileIndex(0);
 	}
-	
+
 	private void showAchivements() {
 		RM.activity.startActivityForResult(Games.Achievements.getAchievementsIntent(RM.activity.getApiClient()), REQUEST_ACHIEVEMENTS);
 	}
-	
+
 	private void showLeaderBoard() {
 		if(RM.gameDataManager.getmLevel() == Level.EASY) {
 			RM.activity.startActivityForResult(Games.Leaderboards.getLeaderboardIntent(

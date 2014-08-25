@@ -2,14 +2,20 @@ package com.joshisk.mathbingo.scene;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
+import org.andengine.entity.modifier.DelayModifier;
+import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.MoveModifier;
+import org.andengine.entity.modifier.MoveXModifier;
 import org.andengine.entity.modifier.ParallelEntityModifier;
+import org.andengine.entity.modifier.ScaleModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -17,8 +23,10 @@ import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.entity.text.Text;
+import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.util.adt.align.HorizontalAlign;
 import org.andengine.util.adt.color.Color;
 
 import android.app.AlertDialog;
@@ -29,7 +37,6 @@ import android.net.Uri;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
-import com.google.android.gms.plus.PlusShare;
 import com.joshisk.mathbingo.BaseScene;
 import com.joshisk.mathbingo.LevelManager.Level;
 import com.joshisk.mathbingo.ResourceManager;
@@ -37,7 +44,6 @@ import com.joshisk.mathbingo.SceneManager;
 import com.joshisk.mathbingo.SceneManager.SceneType;
 import com.joshisk.mathbingo.activity.MainGameActivity;
 import com.joshisk.mathbingo.core.Board;
-import com.joshisk.mathbingo.core.FacebookManager;
 import com.joshisk.mathbingo.core.Operation;
 import com.joshisk.mathbingo.sprites.BingoSprite;
 import com.joshisk.mathbingo.sprites.CellSprite;
@@ -45,7 +51,6 @@ import com.joshisk.mathbingo.sprites.CoinSprite;
 import com.joshisk.mathbingo.sprites.HintSprite;
 import com.joshisk.mathbingo.sprites.NextBoardSprite;
 import com.joshisk.mathbingo.sprites.ScoreSprite;
-import com.joshisk.mathbingo.sprites.ShareButton;
 import com.joshisk.mathbingo.sprites.TimeoutSprite;
 import com.joshisk.mathbingo.sprites.TimerSprite;
 import com.joshisk.mathbingo.utils.Utilities;
@@ -102,8 +107,250 @@ public class GameScene extends BaseScene {
 	private boolean isGameOver = false;
 	private boolean isGamePaused = false;
 	private boolean isSoundRequired = true;
+	private boolean isHelpRequired;
 
 	private boolean isGameStarted = false;
+
+	private Sprite arrow;
+	private int arrowHintNumberShowing = 0;
+	private int maxArrowHints = 3;
+	
+	public GameScene() {
+		isHelpRequired = false;
+	}
+	
+	private void showArrowHint() {
+		
+		if(arrowHintNumberShowing == maxArrowHints)
+			return;
+		
+		CellSprite operand1CellSprite = null;
+		CellSprite operatorCellSprite = null;
+		CellSprite operand2CellSprite = null;
+		Operation operation = board.allOperations.get(arrowHintNumberShowing);
+		operand1CellSprite = null;
+		operatorCellSprite = null;
+		operand2CellSprite = null;
+
+		System.out.println("DEBUG: "+operation.toString());
+		for (int j=0; j < unmodifiedAllCellSpritesInBoard.size(); j++) {
+			if(!((Boolean)unmodifiedAllCellSpritesIsOnBoard.get(j)).booleanValue())
+				continue;
+
+			CellSprite cellSprite = (CellSprite) unmodifiedAllCellSpritesInBoard.get(j);
+			System.out.println("DEBUG: "+cellSprite.getValue());
+			if(operand1CellSprite == null && 
+					cellSprite.getValueInt() == operation.getOperand1()) {
+				operand1CellSprite = cellSprite;
+				System.out.println("DEBUG: Matching operand1 "+cellSprite.getValue());
+			} else if(operand2CellSprite == null && 
+					cellSprite.getValueInt() == operation.getOperand2()) {
+				operand2CellSprite = cellSprite;
+				System.out.println("DEBUG: Matching operand2 "+cellSprite.getValue());
+			} else if(operatorCellSprite == null && 
+					cellSprite.getValueInt() == operation.getOperator()) {
+				operatorCellSprite = cellSprite;
+				System.out.println("DEBUG: Matching operator "+cellSprite.getValue());
+			}
+
+			if(operand1CellSprite != null 
+					&& operand2CellSprite != null
+					&& operatorCellSprite != null ) {
+				break;
+			}
+
+		}
+
+		showArrow(operand1CellSprite);
+		registerTouchArea(operand1CellSprite);
+
+		final CellSprite operand1Sprite = operand1CellSprite;
+		final CellSprite operand2Sprite = operand2CellSprite;
+		final CellSprite operatorSprite = operatorCellSprite;
+
+		final boolean showArrows[] = new boolean[] {false, false, false};
+
+		TimerHandler handler = new TimerHandler(0.1f, true, new ITimerCallback() {
+
+			@Override
+			public void onTimePassed(TimerHandler pTimerHandler) {
+				//System.out.println("HELP DEBUG: Timer Running");
+				if(showArrows[2] == false && 
+						selectedCellSprite[2] == operand2Sprite) {
+					
+					pTimerHandler.setAutoReset(false);
+					showArrows[2] = true;
+					
+					selectedCellSprite[0] = null;
+					selectedCellSprite[1] = null;
+					selectedCellSprite[2] = null;
+					
+					RM.activity.runOnUpdateThread(new Runnable() {
+
+						@Override
+						public void run() {
+							
+							arrowHintNumberShowing++;
+							if(arrowHintNumberShowing != maxArrowHints) {
+								GameScene.this.detachChild(arrow);
+								
+								final Text text = new Text(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2,
+										RM.popMessageFont, "Well Done!!!\nLet's try another example", 
+										new TextOptions(HorizontalAlign.CENTER), RM.vbom);
+								TimerHandler timer = new TimerHandler(2f, false, new ITimerCallback() {
+									
+									@Override
+									public void onTimePassed(TimerHandler pTimerHandler) {
+										GameScene.this.detachChild(text);
+										showArrowHint();
+									}
+								});
+								text.registerEntityModifier(new ScaleModifier(0.5f, 0, 0.9f, 0, 1.3f));
+								
+								GameScene.this.attachChild(text);
+								GameScene.this.registerUpdateHandler(timer);
+							} else {
+								GameScene.this.detachChild(arrow);
+								
+								final Text text = new Text(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2,
+										RM.popMessageFont, "Nice Work!!!\nNow you clear the board", 
+										new TextOptions(HorizontalAlign.CENTER), RM.vbom);
+								TimerHandler timer = new TimerHandler(2f, false, new ITimerCallback() {
+									
+									@Override
+									public void onTimePassed(TimerHandler pTimerHandler) {
+										GameScene.this.detachChild(text);
+										timerSprite.start();
+										RM.gameDataManager.setmHelpRequired(false);
+									}
+								});
+								
+								text.registerEntityModifier(new ScaleModifier(0.5f, 0, 0.9f, 0, 1.3f));
+								
+								GameScene.this.attachChild(text);
+								GameScene.this.registerUpdateHandler(timer);
+								
+								registerObjectTouchAreas();
+								GameScene.this.registerTouchArea(pauseSprite);
+							}
+						}
+					});
+					
+					return;
+				} else if(showArrows[1] == false && 
+						selectedCellSprite[1] == operatorSprite) {
+					RM.activity.runOnUpdateThread(new Runnable() {
+
+						@Override
+						public void run() {
+							//GameScene.this.detachChild(arrow);
+							registerTouchArea(operand2Sprite);
+							showArrow(operand2Sprite);
+							showArrows[1] = true;
+						}
+					});
+
+				} else if(showArrows[0] == false && 
+						selectedCellSprite[0] == operand1Sprite) {
+					System.out.println("HELP DEBUG: Sprite selected");
+					RM.activity.runOnUpdateThread(new Runnable() {
+
+						@Override
+						public void run() {
+							//GameScene.this.detachChild(arrow);
+							registerTouchArea(operatorSprite);
+							showArrow(operatorSprite);
+							showArrows[0] = true;
+						}
+					});
+				}
+			}
+		});
+		GameScene.this.registerUpdateHandler(handler);
+	}
+	
+	private void showHelp() {
+
+		//pauseGame();
+
+		/* Show Target number help */
+		final Rectangle rect = new Rectangle(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2,
+				MainGameActivity.CAMERA_WIDTH, MainGameActivity.CAMERA_HEIGHT, RM.vbom);
+		rect.setColor(Color.BLACK);
+		rect.setAlpha(0.6f);
+		attachChild(rect);
+
+		Sprite targetNumberHelp =  new Sprite(resultNumberText.getX() + 50, resultNumberText.getY() + 115,
+				RM.helpTargetTextureRegion, RM.vbom) {
+			@Override
+			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+					float pTouchAreaLocalX, float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.isActionUp()) {
+					GameScene.this.unregisterTouchArea(this);
+					GameScene.this.detachChild(this);
+					GameScene.this.detachChild(rect);
+
+					showArrowHint();
+					
+					unpauseGame();
+					
+					unregisterObjectTouchAreas();
+					//registerTouchArea(pauseSprite);
+				}
+
+				return true;
+			}
+		};
+
+		registerTouchArea(targetNumberHelp);
+		attachChild(targetNumberHelp);
+	}
+
+	private void showArrow(CellSprite cellSprite) {
+
+		float pX = cellSprite.getX();
+		float pY = cellSprite.getY();
+
+		if(arrow != null) {
+			detachChild(arrow);
+		}
+		
+		if(pX < MainGameActivity.CAMERA_WIDTH/2) {
+			arrow = new Sprite(pX + cellSprite.getWidth()/2 + RM.helpArrowTextureRegion.getWidth()/2 - 5, pY, 
+					RM.helpArrowTextureRegion, RM.vbom);
+			
+			Sprite textSprite = new Sprite(RM.helpArrowTextureRegion.getWidth()/2 - 5, RM.helpArrowTextureRegion.getHeight()/2,
+					RM.helpArrowTextTextureRegion, RM.vbom);
+			
+			textSprite.setRotation(180);
+			
+			arrow.attachChild(textSprite);
+			arrow.setRotation(180);
+		} else {
+			arrow = new Sprite(pX - cellSprite.getWidth()/2 - RM.helpArrowTextureRegion.getWidth()/2 + 5, pY, 
+					RM.helpArrowTextureRegion, RM.vbom);
+			Sprite textSprite = new Sprite(RM.helpArrowTextureRegion.getWidth()/2 - 5, RM.helpArrowTextureRegion.getHeight()/2,
+					RM.helpArrowTextTextureRegion, RM.vbom);
+			
+			
+			arrow.attachChild(textSprite);
+		}
+
+		arrow.registerEntityModifier(new LoopEntityModifier(
+				new SequenceEntityModifier(
+						new MoveXModifier(0.2f, arrow.getX(), arrow.getX() + 5),
+						new MoveXModifier(0.2f, arrow.getX() + 5, arrow.getX()),
+						new MoveXModifier(0.2f, arrow.getX(), arrow.getX() + 5),
+						new MoveXModifier(0.2f, arrow.getX() + 5, arrow.getX()),
+						new MoveXModifier(0.2f, arrow.getX(), arrow.getX() + 5),
+						new MoveXModifier(0.2f, arrow.getX() + 5, arrow.getX()),
+						new DelayModifier(1f)
+						)
+				)
+				);
+		
+		attachChild(arrow);
+	}
 
 	private void rateTheApp() {
 		if(RM.gameDataManager.ismDontAskToRate())
@@ -115,7 +362,7 @@ public class GameScene extends BaseScene {
 				public void run() {
 
 					AlertDialog.Builder alert = new AlertDialog.Builder(RM.activity);
-					alert.setTitle("Rate Us");
+					alert.setTitle("Coins");
 					alert.setMessage("If you like the game,\nPlease rate us and Get 5 Coins");
 					alert.setPositiveButton("Rate Us", new OnClickListener() {
 						@Override
@@ -160,18 +407,12 @@ public class GameScene extends BaseScene {
 		rect.setAlpha(0.4f);
 
 		final Text text = new Text(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2,
-				RM.cellValueFont, "Tap Here to", RM.vbom);
+				RM.popMessageFont, "Tap Here to\nStart", new TextOptions(HorizontalAlign.CENTER), RM.vbom);
 
-		text.setColor(Color.YELLOW);
-
-		final Text text1 = new Text(MainGameActivity.CAMERA_WIDTH/2, MainGameActivity.CAMERA_HEIGHT/2 - 50,
-				RM.cellValueFont, "Start", RM.vbom);
-
-		text1.setColor(Color.YELLOW);
-
+		text.setScale(1.4f);
+		
 		attachChild(rect);
 		attachChild(text);
-		attachChild(text1);
 
 		setOnSceneTouchListener(new IOnSceneTouchListener() {
 
@@ -186,14 +427,22 @@ public class GameScene extends BaseScene {
 						public void run() {
 							detachChild(rect);
 							detachChild(text);
-							detachChild(text1);
-							unpauseGame();
-							registerTouchArea(pauseSprite);
+
+							System.out.println("DEBUG: Help enabled" + RM.gameDataManager.ismHelpRequired());
+							if(RM.gameDataManager.ismHelpRequired()) {
+								showHelp();
+							} else {
+								unpauseGame();
+								registerTouchArea(pauseSprite);
+								timerSprite.start();
+							}
+							RM.gameDataManager.setmNoOfGamesPlayed(RM.gameDataManager.getmNoOfGamesPlayed() + 1);
 						}
 					});
-					timerSprite.start();
+					
 					resultNumberText.setVisible(true);
 					pScene.setOnSceneTouchListener(null);
+					
 				}
 				return true;
 			}
@@ -204,8 +453,7 @@ public class GameScene extends BaseScene {
 		/* Data Initialisation */
 		RM.activity.setAdMobInterstetialVisiable();
 		rateTheApp();
-		RM.gameDataManager.setmNoOfGamesPlayed(RM.gameDataManager.getmNoOfGamesPlayed() + 1);
-
+		
 		allCellSpritesInBoard = new ArrayList<CellSprite>();
 		unmodifiedAllCellSpritesInBoard = new ArrayList<CellSprite>();
 		unmodifiedAllCellSpritesIsOnBoard = new ArrayList<Boolean>();
@@ -572,24 +820,25 @@ public class GameScene extends BaseScene {
 		}
 		pauseGame();
 		tapToStart();
+		//showHelp();
 		RM.activity.setAdMobVisibile();
 	}
 
 	private void incrementBoardClear() {
 		boardsCleared++;
-		
+
 		if(!API_CLIENT.isConnected())
 			return;
-		
+
 		Games.Achievements.unlock(API_CLIENT, RM.activity.getString(R.string.achievement_1_board_clear));
 		Games.Achievements.unlock(API_CLIENT, RM.activity.getString(R.string.achievement_beginner));
-		
+
 		Games.Achievements.increment(API_CLIENT,RM.activity.getString(R.string.achievement_3_boards_cleared), 1);
 		Games.Achievements.increment(API_CLIENT,RM.activity.getString(R.string.achievement_5_boards_cleared), 1);
 		Games.Achievements.increment(API_CLIENT,RM.activity.getString(R.string.achievement_10_boards_cleared), 1);
 		Games.Achievements.increment(API_CLIENT,RM.activity.getString(R.string.achievement_30_boards_cleared), 1);
 		Games.Achievements.increment(API_CLIENT,RM.activity.getString(R.string.achievement_100_boards_cleared), 1);
-		
+
 		switch(boardsCleared) {
 		case 3:
 			Games.Achievements.unlock(API_CLIENT, RM.activity.getString(R.string.achievement_3_boards_in_single_game));
@@ -597,20 +846,20 @@ public class GameScene extends BaseScene {
 		case 5:
 			Games.Achievements.unlock(API_CLIENT, RM.activity.getString(R.string.achievement_5_boards_in_single_game));
 			Games.Achievements.unlock(API_CLIENT, RM.activity.getString(R.string.achievement_amateur));
-			
+
 			break;
 		case 10:
 			Games.Achievements.unlock(API_CLIENT, RM.activity.getString(R.string.achievement_10_boards_in_single_game));
 			Games.Achievements.unlock(API_CLIENT, RM.activity.getString(R.string.achievement_novice));
-			
+
 			break;
 		case 20:
 			Games.Achievements.unlock(API_CLIENT, RM.activity.getString(R.string.achievement_mathematician));
-			
+
 			break;
 		case 30:
 			Games.Achievements.unlock(API_CLIENT, RM.activity.getString(R.string.achievement_grand_master));
-			
+
 			break;
 		}
 	}
@@ -692,7 +941,7 @@ public class GameScene extends BaseScene {
 			}
 		};
 
-		Sprite gPlusShareSprite = new Sprite(timeoutSprite.getWidth()/2 + 30, timeoutSprite.getHeight()/2 - 70, 
+		/*Sprite gPlusShareSprite = new Sprite(timeoutSprite.getWidth()/2 + 30, timeoutSprite.getHeight()/2 - 70, 
 				RM.gPlusShareTextureRegion, RM.vbom) {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
@@ -703,8 +952,7 @@ public class GameScene extends BaseScene {
 					//this.setScale(0.75f);
 					Utilities.playButtonSound();
 					//SceneManager.getInstance().createMenuScene();
-					
-					
+
 					Intent shareIntent = new PlusShare.Builder(RM.activity)
 					.setType("text/plain")
 					.setText("I just scored "+scoreSprite.getScore()+"\n\nLoved playing MathBingo. You will love it too." +
@@ -734,9 +982,9 @@ public class GameScene extends BaseScene {
 				}
 				return true;
 			}
-		};
+		};*/
 
-		Sprite shareButton = new Sprite(timeoutSprite.getWidth()/2 - 40, timeoutSprite.getHeight()/2 - 70,
+		Sprite shareButton = new Sprite(timeoutSprite.getWidth()/2, timeoutSprite.getHeight()/2 - 70,
 				RM.shareTextureRegion, RM.vbom) {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
@@ -746,7 +994,7 @@ public class GameScene extends BaseScene {
 				} else if (pSceneTouchEvent.isActionUp()) {
 					this.setScale(0.75f);
 					Utilities.playButtonSound();
-					
+
 					Intent sendIntent = new Intent();
 					sendIntent.setAction(Intent.ACTION_SEND);
 					sendIntent.putExtra(Intent.EXTRA_TEXT, "I just scored "+scoreSprite.getScore() + " in MathBingo" +
@@ -757,7 +1005,7 @@ public class GameScene extends BaseScene {
 				return true;
 			}
 		};
-		
+
 		restartSprite.setScale(0.75f);
 		mainMenuSprite.setScale(0.75f);
 		leaderBoardSprite.setScale(0.75f);
@@ -768,42 +1016,36 @@ public class GameScene extends BaseScene {
 		registerTouchArea(restartSprite);
 		registerTouchArea(leaderBoardSprite);
 		registerTouchArea(mainMenuSprite);
-		registerTouchArea(gPlusShareSprite);
+		//registerTouchArea(gPlusShareSprite);
 		//registerTouchArea(fbShareSprite);
 		registerTouchArea(shareButton);
-		
+
 		attachChild(restartSprite);
 		attachChild(leaderBoardSprite);
 		attachChild(mainMenuSprite);
-		attachChild(gPlusShareSprite);
+		//attachChild(gPlusShareSprite);
 		//attachChild(fbShareSprite);
 		attachChild(shareButton);
-		
+
 		postScore();
 		if(RM.gameDataManager.ismLeaderBoardRequired()) {
 			showLeaderBoard();
 		}
 	}
 
-	private void pauseGame() {
-		isGamePaused = true;
-
+	private void unregisterObjectTouchAreas() {
 		for (Iterator iterator = allCellSpritesInBoard.iterator(); iterator.hasNext();) {
 			CellSprite sprite = (CellSprite) iterator.next();
-			sprite.pause();
+			//sprite.pause();
 			unregisterTouchArea(sprite);
 		}
 		unregisterTouchArea(hintSprite);
 		unregisterTouchArea(nextBoardSprite);
 		unregisterTouchArea(coinSprite);
 		unregisterTouchArea(soundSprite);
-		timerSprite.pause();
-
-		hintSprite.pause();
 	}
-
-	private void unpauseGame() {
-		isGamePaused = false;
+	
+	private void registerObjectTouchAreas() {
 		for (Iterator iterator = allCellSpritesInBoard.iterator(); iterator.hasNext();) {
 			CellSprite sprite = (CellSprite) iterator.next();
 			sprite.unpause();
@@ -813,7 +1055,33 @@ public class GameScene extends BaseScene {
 		registerTouchArea(nextBoardSprite);
 		registerTouchArea(coinSprite);
 		registerTouchArea(soundSprite);
+	}
+	
+	private void pauseGame() {
+		isGamePaused = true;
 
+		unregisterObjectTouchAreas();
+		
+		for (Iterator iterator = allCellSpritesInBoard.iterator(); iterator.hasNext();) {
+			CellSprite sprite = (CellSprite) iterator.next();
+			sprite.pause();
+		}
+		
+		timerSprite.pause();
+		hintSprite.pause();
+	}
+
+	
+	private void unpauseGame() {
+		isGamePaused = false;
+
+		registerObjectTouchAreas();
+		
+		for (Iterator iterator = allCellSpritesInBoard.iterator(); iterator.hasNext();) {
+			CellSprite sprite = (CellSprite) iterator.next();
+			sprite.unpause();
+		}
+		
 		timerSprite.unpause();
 		hintSprite.unpause();
 	}
@@ -905,7 +1173,35 @@ public class GameScene extends BaseScene {
 		// To make sure we are getting the same result number in the next board too.
 
 		do {
-			board = new Board();
+			/*
+			 * Little logic to have result numbers properly so that
+			 * users can clear boards initially
+			 */
+			if( RM.gameDataManager.getmLevel() == Level.HARD 
+					|| (RM.gameDataManager.getmNoOfGamesPlayed() > 3 && RM.gameDataManager.getmHighScore() > 1250)
+					|| boardsCleared > 2) {
+				board = new Board();
+			} else if(RM.gameDataManager.getmNoOfGamesPlayed() == 0 ||
+					RM.gameDataManager.getmHighScore() <= 600) {
+				int random = new Random().nextInt(3);
+				switch(random) {
+				case 0:
+					board = new Board((byte)5);
+					break;
+				case 1:
+					board = new Board((byte)10);
+					break;
+				case 2:
+					board = new Board((byte)20);
+					break;
+				}
+			} else {
+				int random = new Random().nextInt(6);
+				random += 5; //To generate in the range of 5 and 10, 1 - 5 
+								// will never be used as result numbers
+				
+				board = new Board((byte)random);
+			}
 		} while (isResultNumberAlreadyPlayed(board.getResultNumber()));
 
 		playedResultNumbers.add(Integer.valueOf(board.getResultNumber()));
@@ -1148,7 +1444,7 @@ public class GameScene extends BaseScene {
 				public void run() {
 
 					AlertDialog.Builder alert = new AlertDialog.Builder(RM.activity);
-					alert.setTitle("Not Signed In");
+					alert.setTitle("LeaderBoard");
 					alert.setMessage("Not Signed Into Google\nCheck your internet connection");
 					alert.setPositiveButton("Try again", new OnClickListener() {
 						@Override
@@ -1175,7 +1471,7 @@ public class GameScene extends BaseScene {
 						public void run() {
 
 							AlertDialog.Builder alert = new AlertDialog.Builder(RM.activity);
-							alert.setTitle("No Internet");
+							alert.setTitle("LeaderBoard");
 							alert.setMessage("No Internet connection available\n" +
 									"Your score may not be posted to leaderboard");
 							alert.setPositiveButton("OK", new OnClickListener() {
@@ -1249,6 +1545,7 @@ public class GameScene extends BaseScene {
 			if(tempCellSprite == null)
 				continue;
 			tempCellSprite.removeHighLight();
+			selectedCellSprite[i] = null;
 		}
 	}
 

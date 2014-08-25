@@ -46,10 +46,16 @@ public class Board {
 	/**********************************************************************/
 
 	public Board() {
-		this(DEFAULT_SIZE);
+		this(DEFAULT_SIZE, (byte)0);
 	}
-
-	public Board(byte size) {
+	
+	public Board(byte resultNumber) {
+		this(DEFAULT_SIZE, resultNumber);
+	}
+	
+	public Board(byte size, byte resultNumber) {
+		this.resultNumber = resultNumber;
+		
 		RANDOM_SEED = System.currentTimeMillis();
 		this.size = size;
 		matrix = new byte[this.size][this.size];
@@ -63,7 +69,7 @@ public class Board {
 		generateMatrix();
 
 	}
-
+	
 	/***************************** MEMBER FUNCTIONS ***********************/
 
 	/**
@@ -120,6 +126,9 @@ public class Board {
 		return true;
 	}
 	private void generateResultNumber() {
+		if(resultNumber != 0)
+			return; // Resultnumber already generated or passed during instance creation
+		
 		Random rand = new Random(RANDOM_SEED);
 		while(true) { // To skip if the result number if prime as this is very easy to guess for multiplications
 			resultNumber = (byte)(rand.nextInt(maxResultNumber - minResultNumber) + minResultNumber);

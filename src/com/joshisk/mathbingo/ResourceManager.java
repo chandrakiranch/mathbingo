@@ -8,11 +8,15 @@ import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
+import org.andengine.opengl.font.StrokeFont;
+import org.andengine.opengl.texture.EmptyTexture;
+import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
@@ -20,7 +24,6 @@ import org.andengine.util.debug.Debug;
 
 import android.graphics.Typeface;
 
-import com.google.android.gms.ads.InterstitialAd;
 import com.joshisk.mathbingo.LevelManager.Level;
 import com.joshisk.mathbingo.activity.MainGameActivity;
 import com.joshisk.mathbingo.core.GameDataManager;
@@ -41,6 +44,8 @@ public class ResourceManager {
 	public Font scoreHeaderFont;
 	public int scoreHeaderFontSize = 18;
 	public Font scoreFont;
+	public StrokeFont popMessageFont;
+	
 	public int scoreFontSize = 20;
 
 	public Font resultNumberFont;
@@ -72,6 +77,8 @@ public class ResourceManager {
 	public BitmapTextureAtlas menuTextureAtlas;
 	public BitmapTextureAtlas soundRequiredAtlas;
 	public TiledTextureRegion soundRequiredTextureRegion;
+	public BitmapTextureAtlas rateUsAtlas;
+	public ITextureRegion rateUsTextureRegion;
 	
 
 	public BitmapTextureAtlas optionsArrowAtlas = null; ;
@@ -83,6 +90,13 @@ public class ResourceManager {
 
 	public int DEFAULT_MAXIMUM_GREENS_ALLOWED = 3;
 
+	public BitmapTextureAtlas helpTargetAtlas ;
+	public ITextureRegion helpTargetTextureRegion ;
+	public BitmapTextureAtlas helpArrowAtlas ;
+	public ITextureRegion helpArrowTextureRegion ;
+	public BitmapTextureAtlas helpArrowTextAtlas ;
+	public ITextureRegion helpArrowTextTextureRegion ;
+	
 	public BitmapTextureAtlas blueSphereAtlas ;
 	public ITextureRegion blueSphereTextureRegion ;
 	public BitmapTextureAtlas maroonSphereAtlas ;
@@ -114,22 +128,26 @@ public class ResourceManager {
 	public ITextureRegion restartTextureRegion ;
 	public BitmapTextureAtlas leaderBoardAtlas ;
 	public ITextureRegion leaderBoardTextureRegion ;
+	public BitmapTextureAtlas achivementsAtlas ;
+	public ITextureRegion achivementsTextureRegion ;
 	public BitmapTextureAtlas nextBoardPopupAtlas ;
 	public ITextureRegion nextBoardPopupTextureRegion ;
 	public BitmapTextureAtlas bingoAtlas ;
 	public ITextureRegion bingoTextureRegion ;
 	public BitmapTextureAtlas menuAtlas ;
 	public ITextureRegion menuTextureRegion ;
-	public BitmapTextureAtlas gPlusShareAtlas ;
-	public ITextureRegion gPlusShareTextureRegion ;
-	public BitmapTextureAtlas fbShareAtlas ;
-	public ITextureRegion fbShareTextureRegion ;
+	//public BitmapTextureAtlas gPlusShareAtlas ;
+	//public ITextureRegion gPlusShareTextureRegion ;
+	//public BitmapTextureAtlas fbShareAtlas ;
+	//public ITextureRegion fbShareTextureRegion ;
 	public BitmapTextureAtlas shareAtlas ;
 	public ITextureRegion shareTextureRegion ;
 
 	public Sound mBubbleBlastSound;
 	public Sound mWrongOperationSound;
 	public Sound mBingoSound;
+	
+	
 
 	/* Game Data Manager */
 
@@ -195,6 +213,7 @@ public class ResourceManager {
 		menu_play_atlas = new BitmapTextureAtlas(activity.getTextureManager(), 247, 114, TextureOptions.BILINEAR);
 		play_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menu_play_atlas, activity, "play.png",0,0);
 		menu_options_atlas = new BitmapTextureAtlas(activity.getTextureManager(), 247, 114, TextureOptions.BILINEAR);
+		
 		options_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menu_options_atlas, activity, "options.png",0,0);
 		menu_quit_atlas = new BitmapTextureAtlas(activity.getTextureManager(), 247, 114, TextureOptions.BILINEAR);
 		quit_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menu_quit_atlas, activity, "quit.png",0,0);
@@ -207,6 +226,12 @@ public class ResourceManager {
 		soundRequiredTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(soundRequiredAtlas, activity, 
 				"sound.png",0, 0, 2, 1);
 		soundRequiredAtlas.load();
+		
+		rateUsAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 90, 90, TextureOptions.BILINEAR);
+		rateUsTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(rateUsAtlas, activity, 
+				"rate.png",0, 0);
+		rateUsAtlas.load();
+		
 		/*try 
 		{
 			this.menuTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
@@ -250,6 +275,18 @@ public class ResourceManager {
 		/* Create Graphics */
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
+		helpTargetAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 350, 199, TextureOptions.BILINEAR);
+		helpTargetTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(helpTargetAtlas, activity, "targetnumber-help.png",0,0);
+		helpTargetAtlas.load();
+		
+		helpArrowAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 100, 95, TextureOptions.BILINEAR);
+		helpArrowTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(helpArrowAtlas, activity, "arrow.png",0,0);
+		helpArrowAtlas.load();
+		
+		helpArrowTextAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 66, 29, TextureOptions.BILINEAR);
+		helpArrowTextTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(helpArrowTextAtlas, activity, "arrow_text.png",0,0);
+		helpArrowTextAtlas.load();
+		
 		backgroundAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 800, 1280, TextureOptions.BILINEAR);
 		backgroundTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(backgroundAtlas, activity, "playscreen_bg.png",0,0);
 		backgroundAtlas.load();
@@ -317,6 +354,10 @@ public class ResourceManager {
 		leaderBoardAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 90, 94, TextureOptions.BILINEAR);
 		leaderBoardTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(leaderBoardAtlas, activity, "leaderboard.png", 0, 0);
 		leaderBoardAtlas.load();
+		
+		achivementsAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 90, 88, TextureOptions.BILINEAR);
+		achivementsTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(achivementsAtlas, activity, "achievements.png", 0, 0);
+		achivementsAtlas.load();
 
 		bingoAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 400, 404, TextureOptions.BILINEAR);
 		bingoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bingoAtlas, activity, "bingo.png", 0, 0);
@@ -326,16 +367,16 @@ public class ResourceManager {
 		menuTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuAtlas, activity, "menu.png", 0, 0);
 		menuAtlas.load();
 		
-		gPlusShareAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 64, 64, TextureOptions.BILINEAR);
+		/*gPlusShareAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 64, 64, TextureOptions.BILINEAR);
 		gPlusShareTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gPlusShareAtlas, activity, "gplus_share.png", 0, 0);
 		gPlusShareAtlas.load();
 		
 		fbShareAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 64, 64, TextureOptions.BILINEAR);
 		fbShareTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(fbShareAtlas, activity, "fb_icon.png", 0, 0);
-		fbShareAtlas.load();
+		fbShareAtlas.load();*/
 		
-		shareAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 90, 90, TextureOptions.BILINEAR);
-		shareTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(shareAtlas, activity, "android_share.png", 0, 0);
+		shareAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 200, 92, TextureOptions.BILINEAR);
+		shareTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(shareAtlas, activity, "share.png", 0, 0);
 		shareAtlas.load();
 	}
 
@@ -363,10 +404,18 @@ public class ResourceManager {
 		this.scoreFont = FontFactory.createFromAsset(activity.getFontManager(), activity.getTextureManager(), 
 				512, 512, TextureOptions.BILINEAR, activity.getAssets(), "ANJA_ELIANE.ttf", cellValueFontSize, true, android.graphics.Color.WHITE);
 		this.scoreFont.load();
+		
+		final ITexture strokeOnlyFontTexture = new EmptyTexture(activity.getTextureManager(), 512, 512, TextureOptions.BILINEAR);
+		
+		this.popMessageFont = FontFactory.createStrokeFromAsset(activity.getFontManager(), strokeOnlyFontTexture, 
+				activity.getAssets(), "ANJA_ELIANE.ttf", cellValueFontSize, true, android.graphics.Color.YELLOW, 2, android.graphics.Color.BLACK);
+		this.popMessageFont.load();
 
 		this.resultNumberFont = FontFactory.createFromAsset(activity.getFontManager(), activity.getTextureManager(), 
 				512, 512, TextureOptions.BILINEAR, activity.getAssets(), "Plok.ttf", resultNumberFontSize, true, android.graphics.Color.WHITE);
 		this.resultNumberFont.load();
+		
+		
 	}
 
 	private void unLoadGameFonts() {

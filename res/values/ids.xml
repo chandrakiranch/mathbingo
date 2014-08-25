@@ -10,19 +10,23 @@
     <string name="game_scene_full_screen_ads">ca-app-pub-4441234766413659/3117695328</string>
     
     <string name="achievement_beginner">CgkI1qP2nZoEEAIQBA</string>
+    <string name="achievement_earn_20_coins">CgkI1qP2nZoEEAIQFQ</string>
     <string name="achievement_1_board_clear">CgkI1qP2nZoEEAIQCg</string>
     <string name="achievement_3_boards_cleared">CgkI1qP2nZoEEAIQCw</string>
     <string name="achievement_3_boards_in_single_game">CgkI1qP2nZoEEAIQDA</string>
     <string name="achievement_amateur">CgkI1qP2nZoEEAIQBQ</string>
+    <string name="achievement_earn_50_coins">CgkI1qP2nZoEEAIQFg</string>
     <string name="achievement_5_boards_cleared">CgkI1qP2nZoEEAIQDQ</string>
     <string name="achievement_5_boards_in_single_game">CgkI1qP2nZoEEAIQDg</string>
     <string name="achievement_10_boards_cleared">CgkI1qP2nZoEEAIQDw</string>
     <string name="achievement_novice">CgkI1qP2nZoEEAIQBg</string>
+    <string name="achievement_earn_75_coins">CgkI1qP2nZoEEAIQFw</string>
     <string name="achievement_mathematician">CgkI1qP2nZoEEAIQBw</string>
     <string name="achievement_30_boards_cleared">CgkI1qP2nZoEEAIQEQ</string>
     <string name="achievement_10_boards_in_single_game">CgkI1qP2nZoEEAIQEA</string>
     <string name="achievement_grand_master">CgkI1qP2nZoEEAIQCA</string>
     <string name="achievement_100_boards_cleared">CgkI1qP2nZoEEAIQEg</string>
+    <string name="achievement_earn_100_coins">CgkI1qP2nZoEEAIQGA</string>
     <string name="leaderboard_easy_leaderboard">CgkI1qP2nZoEEAIQAQ</string>
     <string name="leaderboard_medium_leaderboard">CgkI1qP2nZoEEAIQAg</string>
     <string name="leaderboard_hard_leaderboard">CgkI1qP2nZoEEAIQAw</string>

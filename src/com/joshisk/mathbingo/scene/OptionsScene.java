@@ -24,6 +24,9 @@ public class OptionsScene extends BaseScene {
 
 	private String leaderBoardLabel = "LeaderBoard:";
 	private OptionControl leaderBoardRequired;
+	
+	private String helpRequiredLabel = "Help:";
+	private OptionControl helpOptionControl;
 
 	//	private String musicLabel = "Music:";
 	//	private OptionControl musicRequired;
@@ -97,6 +100,18 @@ public class OptionsScene extends BaseScene {
 		}
 
 		attachChild(leaderBoardRequired);
+		
+		Text helpRequiredText = new Text(MainGameActivity.CAMERA_WIDTH/2, 250, RM.resultNumberFont, helpRequiredLabel, RM.vbom);
+		helpRequiredText.setScale(0.5f);
+		attachChild(helpRequiredText);
+		helpOptionControl = new OptionControl(MainGameActivity.CAMERA_WIDTH/2, 200, new String[]{"On", "Off"}, this);
+		if(RM.gameDataManager.ismHelpRequired()) {
+			helpOptionControl.setOption(0);
+		} else {
+			helpOptionControl.setOption(1);
+		}
+
+		attachChild(helpOptionControl);
 	}
 
 	@Override
@@ -147,6 +162,12 @@ public class OptionsScene extends BaseScene {
 		} else {
 			RM.gameDataManager.setmLeaderBoardRequired(false);
 		}
+		
+		if(helpOptionControl.getSelectedOption().equalsIgnoreCase("On")) {
+			RM.gameDataManager.setmHelpRequired(true);
+		} else {
+			RM.gameDataManager.setmHelpRequired(false);
+		}
 	}
 
 	@Override
@@ -185,6 +206,12 @@ public class OptionsScene extends BaseScene {
 			leaderBoardRequired.setOption(0);
 		} else {
 			leaderBoardRequired.setOption(1);
+		}
+		
+		if(RM.gameDataManager.ismHelpRequired()) {
+			helpOptionControl.setOption(0);
+		} else {
+			helpOptionControl.setOption(1);
 		}
 	}
 

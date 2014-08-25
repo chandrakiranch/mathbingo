@@ -29,6 +29,7 @@ public class GameDataManager {
 	private static final String MUSIC_REQUIRED = "MUSIC_REQUIRED";
 	private static final String NO_OF_GAMES_PLAYED = "NO_OF_GAMES_PLAYED";
 	private static final String DONT_ASK_TO_RATE = "DONT_ASK_TO_RATE";
+	private static final String HELP_REQUIRED = "HELP_REQUIRED";
 
 	private static final int DEFAULT_COINS = 5;
 
@@ -39,13 +40,12 @@ public class GameDataManager {
 	private int mLevel;
 	private long mScore;
 	private long mHighScore[] = new long[LevelManager.Level.values().length];
-
 	private long mGoldCoins;
-
 	private boolean mSoundRequired;
 	private boolean mLeaderBoardRequired;
 	private boolean mMusicRequired;
 	private boolean mDontAskToRate;
+	private boolean mHelpRequired;
 	
 
 	public GameDataManager(Context pContext) {
@@ -60,6 +60,7 @@ public class GameDataManager {
 			mNoOfGamesPlayed = mSettings.getInt(NO_OF_GAMES_PLAYED, 0);
 			mSoundRequired = mSettings.getBoolean(SOUND_REQUIRED, true);
 			mDontAskToRate = mSettings.getBoolean(DONT_ASK_TO_RATE, false);
+			mHelpRequired = mSettings.getBoolean(HELP_REQUIRED, true);
 			mLeaderBoardRequired = mSettings.getBoolean(LEADERBOARD, true);
 			mLevel = mSettings.getInt(LEVEL, LevelManager.Level.EASY.ordinal());
 			for (int i = 0; i < Level.values().length; i++) {
@@ -87,6 +88,18 @@ public class GameDataManager {
 		this.mDontAskToRate = mDontAskToRate;
 		mEditor.putBoolean(DONT_ASK_TO_RATE, mDontAskToRate);
 		mEditor.commit();
+	}
+	
+	public boolean ismHelpRequired() {
+		return mHelpRequired;
+	}
+
+	public void setmHelpRequired(boolean mHelpRequired) {
+		this.mHelpRequired = mHelpRequired;
+		mEditor.putBoolean(HELP_REQUIRED, mHelpRequired);
+		mEditor.commit();
+		
+		System.out.println("DEBUG: HELP REQD "+this.mHelpRequired);
 	}
 
 	public int getmNoOfGamesPlayed() {

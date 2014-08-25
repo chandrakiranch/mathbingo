@@ -21,13 +21,10 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
 
-import com.facebook.Session;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.example.games.basegameutils.GBaseGameActivity;
 import com.joshisk.mathbingo.ResourceManager;
